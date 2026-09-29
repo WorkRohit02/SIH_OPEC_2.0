@@ -1,0 +1,360 @@
+{
+  "info": {
+    "_postman_id": "color-safe-api-collection-v1",
+    "name": "COLOR-SAFE REST API Collection",
+    "description": "Complete REST API collection for COLOR-SAFE Smartphone-Assisted Colorimetric Field Drug Testing Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testId",
+      "value": "FT-2026-000001",
+      "type": "string"
+    },
+    {
+      "key": "testMongoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "captureMongoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "recordId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Register Officer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Inspector Rahul Sharma\",\n  \"email\": \"rahul.sharma@narcotics.gov.in\",\n  \"password\": \"SecurePassword123\",\n  \"organization\": \"Narcotics Control Bureau\",\n  \"phone\": \"+91 9876543210\",\n  \"role\": \"OFFICER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Officer (Sets Token Automatically)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.accessToken);",
+                  "    console.log('Access token saved:', jsonData.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"rahul.sharma@narcotics.gov.in\",\n  \"password\": \"SecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Authenticated User Identity (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Test Profiles",
+      "item": [
+        {
+          "name": "List Active Profiles (e.g. CP-01)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/test-profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["test-profiles"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile CP-01 Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/test-profiles/CP-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["test-profiles", "CP-01"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Field Tests",
+      "item": [
+        {
+          "name": "Initiate Field Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.test) {",
+                  "    pm.collectionVariables.set('testId', jsonData.data.test.testId);",
+                  "    pm.collectionVariables.set('testMongoId', jsonData.data.test._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testProfileCode\": \"CP-01\",\n  \"deviceId\": \"DEVICE-MOB-9942\",\n  \"location\": {\n    \"latitude\": 28.6139,\n    \"longitude\": 77.2090,\n    \"accuracy\": 4.5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tests",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests"]
+            }
+          }
+        },
+        {
+          "name": "List Field Tests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Field Test by Human-Readable ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests", "{{testId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Evidence Capture",
+      "item": [
+        {
+          "name": "Upload Evidence Capture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.capture) {",
+                  "    pm.collectionVariables.set('captureMongoId', jsonData.data.capture._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "qualityChecks", "value": "{\"blurPassed\":true,\"referenceCardDetected\":true}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tests/{{testId}}/captures",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests", "{{testId}}", "captures"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Color Analysis & Digital Record",
+      "item": [
+        {
+          "name": "Execute Color Analysis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.digitalRecord) {",
+                  "    pm.collectionVariables.set('recordId', jsonData.data.digitalRecord.recordId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testId\": \"{{testMongoId}}\",\n  \"capturedSamples\": {\n    \"testRegionRgb\": { \"r\": 190, \"g\": 45, \"b\": 210 }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/analysis/{{captureMongoId}}/analyse",
+              "host": ["{{baseUrl}}"],
+              "path": ["analysis", "{{captureMongoId}}", "analyse"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. PDF Report & Verification",
+      "item": [
+        {
+          "name": "Download PDF Evidence Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "{{testId}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Digital Record Integrity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/verification/{{recordId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["verification", "{{recordId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Offline Sync",
+      "item": [
+        {
+          "name": "Batch Sync Offline Records",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"DEVICE-MOB-9942\",\n  \"records\": [\n    {\n      \"localTestId\": \"FT-2026-OFFLINE-001\",\n      \"testProfileCode\": \"CP-01\",\n      \"status\": \"COMPLETED\",\n      \"analysis\": {\n        \"features\": { \"rgb\": { \"r\": 180, \"g\": 40, \"b\": 200 } },\n        \"classification\": \"PRESUMPTIVE_POSITIVE\",\n        \"confidence\": 0.85\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sync",
+              "host": ["{{baseUrl}}"],
+              "path": ["sync"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

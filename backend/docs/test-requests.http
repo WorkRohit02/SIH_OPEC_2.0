@@ -1,0 +1,196 @@
+### COLOR-SAFE REST API Testing Collection (REST Client / Thunder Client / Postman)
+### Base URL: http://localhost:5000/api
+
+@baseUrl = http://localhost:5000/api
+@authToken = {{login.response.body.data.accessToken}}
+
+###############################################################################
+# 1. HEALTH CHECK
+###############################################################################
+
+### 1.1 Verify Backend Server Health
+GET {{baseUrl}}/health
+Content-Type: application/json
+
+
+###############################################################################
+# 2. AUTHENTICATION & PROFILE
+###############################################################################
+
+### 2.1 Register Field Officer User
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Inspector Rahul Sharma",
+  "email": "rahul.sharma@narcotics.gov.in",
+  "password": "SecurePassword123",
+  "organization": "Narcotics Control Bureau",
+  "phone": "+91 9876543210",
+  "role": "OFFICER"
+}
+
+### 2.2 Login Officer User
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "rahul.sharma@narcotics.gov.in",
+  "password": "SecurePassword123"
+}
+
+### 2.3 Get Current Authenticated Identity (/me)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{authToken}}
+
+### 2.4 Get User Profile
+GET {{baseUrl}}/users/profile
+Authorization: Bearer {{authToken}}
+
+
+###############################################################################
+# 3. TEST PROFILES
+###############################################################################
+
+### 3.1 List Active Colorimetric Test Profiles (e.g. CP-01)
+GET {{baseUrl}}/test-profiles
+Authorization: Bearer {{authToken}}
+
+### 3.2 Get Test Profile by Code (CP-01)
+GET {{baseUrl}}/test-profiles/CP-01
+Authorization: Bearer {{authToken}}
+
+
+###############################################################################
+# 4. FIELD TEST LIFECYCLE
+###############################################################################
+
+### 4.1 Initiate a New Field Test (Generates FT-YYYY-XXXXXX ID)
+# @name createTest
+POST {{baseUrl}}/tests
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "testProfileCode": "CP-01",
+  "deviceId": "DEVICE-MOB-9942",
+  "location": {
+    "latitude": 28.6139,
+    "longitude": 77.2090,
+    "accuracy": 4.5
+  },
+  "appVersion": "1.0.0"
+}
+
+### 4.2 List Field Tests (Supports Pagination, Search, Filter)
+GET {{baseUrl}}/tests?page=1&limit=10&status=IN_PROGRESS
+Authorization: Bearer {{authToken}}
+
+### 4.3 Get Single Field Test Details (Replace ID with testId or MongoDB _id)
+GET {{baseUrl}}/tests/FT-2026-000001
+Authorization: Bearer {{authToken}}
+
+
+###############################################################################
+# 5. EVIDENCE CAPTURE & MEDIA UPLOAD
+###############################################################################
+
+### 5.1 Upload Evidence Capture Photo (Multipart Form-Data)
+### Replace FT-2026-000001 with your generated test ID
+POST {{baseUrl}}/tests/FT-2026-000001/captures
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="qualityChecks"
+
+{"blurPassed":true,"exposurePassed":true,"lightingPassed":true,"referenceCardDetected":true,"testRegionDetected":true}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="sample_evidence.jpg"
+Content-Type: image/jpeg
+
+< ./sample_evidence.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+###############################################################################
+# 6. COLOR ANALYSIS & DIGITAL RECORD GENERATION
+###############################################################################
+
+### 6.1 Execute Color Analysis (Triggers RSA Signed DigitalRecord generation)
+### Replace CAPTURE_ID and TEST_ID with actual MongoDB ObjectIds
+# @name analyse
+POST {{baseUrl}}/analysis/CAPTURE_ID_HERE/analyse
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "testId": "TEST_ID_HERE",
+  "capturedSamples": {
+    "testRegionRgb": {
+      "r": 190,
+      "g": 45,
+      "b": 210
+    },
+    "referencePatches": {
+      "white": { "r": 250, "g": 250, "b": 250 },
+      "black": { "r": 5, "g": 5, "b": 5 }
+    }
+  }
+}
+
+
+###############################################################################
+# 7. PDF EVIDENCE REPORT GENERATION
+###############################################################################
+
+### 7.1 Download Official PDF Evidence Report
+### Returns application/pdf binary stream
+GET {{baseUrl}}/reports/FT-2026-000001
+Authorization: Bearer {{authToken}}
+
+
+###############################################################################
+# 8. EVIDENCE RECORD INTEGRITY VERIFICATION
+###############################################################################
+
+### 8.1 Verify Digital Record Integrity & RSA Signature
+### Replace DR-FT-2026-000001-XXXX with actual recordId or MongoDB _id
+GET {{baseUrl}}/verification/DR-FT-2026-000001-SAMPLE
+
+
+###############################################################################
+# 9. OFFLINE BATCH SYNCHRONIZATION
+###############################################################################
+
+### 9.1 Sync Offline Records Batch
+POST {{baseUrl}}/sync
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "deviceId": "DEVICE-MOB-9942",
+  "records": [
+    {
+      "localTestId": "FT-2026-OFFLINE-001",
+      "testProfileCode": "CP-01",
+      "status": "COMPLETED",
+      "startedAt": "2026-09-28T20:00:00.000Z",
+      "completedAt": "2026-09-28T20:02:00.000Z",
+      "location": { "latitude": 28.6139, "longitude": 77.2090, "accuracy": 5.0 },
+      "capture": {
+        "attemptNumber": 1,
+        "imageHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "qualityChecks": { "blurPassed": true, "referenceCardDetected": true }
+      },
+      "analysis": {
+        "features": { "rgb": { "r": 180, "g": 40, "b": 200 } },
+        "classification": "PRESUMPTIVE_POSITIVE",
+        "confidence": 0.85,
+        "explanation": "Synced offline presumptive test result."
+      }
+    }
+  ]
+}
