@@ -6,3 +6,4 @@ uploads/*
 coverage/
 *.log
 keys/*.pem
+POSTMAN_API_REFERENCE.md

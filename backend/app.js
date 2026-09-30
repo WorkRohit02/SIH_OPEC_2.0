@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 
 const notFound = require('./middleware/notFound.middleware');
@@ -12,7 +13,13 @@ const app = express();
 app.use(helmet());
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+
+// Cookie Parser
+app.use(cookieParser());
 
 // Rate Limiter
 const limiter = rateLimit({
@@ -51,6 +58,7 @@ app.use('/api/analysis', require('./routes/analysis.routes'));
 app.use('/api/reports', require('./routes/report.routes'));
 app.use('/api/verification', require('./routes/verification.routes'));
 app.use('/api/sync', require('./routes/sync.routes'));
+app.use('/api/reagents', require('./routes/reagent.routes'));
 
 // 404 Handler
 app.use(notFound);
