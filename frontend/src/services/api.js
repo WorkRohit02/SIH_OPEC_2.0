@@ -1,6 +1,6 @@
 // API Service to connect Frontend React App to Node.js/Express Backend API
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://sih-opec-drug.onrender.com/api';
 
 // Token Management
 export const getStoredToken = () => localStorage.getItem('opec_access_token') || sessionStorage.getItem('opec_access_token');

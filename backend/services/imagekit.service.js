@@ -54,7 +54,7 @@ const uploadMedia = async (fileBuffer, fileName, mimeType, testId, category = 'O
   const mockFileId = `local_fallback_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   return {
     fileId: mockFileId,
-    url: `http://localhost:5000/uploads/mock_${mockFileId}.jpg`,
+    url: `https://sih-opec-drug.onrender.com/uploads/mock_${mockFileId}.jpg`,
     fileName: fileName,
     mimeType: mimeType,
     size: fileBuffer.length,
