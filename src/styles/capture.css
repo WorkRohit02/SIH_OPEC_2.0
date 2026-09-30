@@ -1,0 +1,34 @@
+.cap { min-height: 100%; background: #0a0d0f; color: #e8eeea; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; padding: var(--s3) var(--s4) var(--s5); gap: var(--s3); --g: #22c583; }
+.cap-top { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; } .cap-top h1 { font-size: var(--t-16); text-align: center; color: #fff; }
+.cap .icon-btn { color: #cfd8d3; } .cap .icon-btn:hover { background: #1a2024; }
+.cap-dev { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--g); }
+.proto { align-self: center; border: 1px solid #1f6b4c; color: var(--g); border-radius: var(--r-pill); padding: 2px 10px; font-size: 10px; letter-spacing: 0.1em; }
+.viewport { position: relative; aspect-ratio: 3/4; max-height: 52vh; width: 100%; background: #050607; border: 1px solid #1c2226; border-radius: var(--r-md); overflow: hidden; }
+.viewport video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+.region { position: absolute; left: 14%; right: 14%; display: grid; place-items: center; font-size: 10px; letter-spacing: 0.12em; color: var(--g); }
+.region.ref { top: 12%; height: 26%; } .region.test { top: 46%; height: 24%; }
+.region::before, .region::after, .region i::before, .region i::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid var(--g); }
+.region::before { top: 0; left: 0; border-right: 0; border-bottom: 0; } .region::after { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.region i::before { bottom: 0; left: 0; border-right: 0; border-top: 0; } .region i::after { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+.cap-caption { text-align: center; font-size: 12px; color: #9aa6a0; }
+.panel, .attempt, .ctx { background: #12171a; border: 1px solid #222a2f; border-radius: var(--r-md); padding: var(--s3) var(--s4); }
+.panel { display: flex; flex-direction: column; gap: var(--s3); }
+.check { display: flex; align-items: center; gap: var(--s3); font-size: var(--t-13); } .check .label { flex: 1; }
+.check .ok { color: var(--g); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; } .check .bad { color: #ff6b6b; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; } .check .wait { color: #7c8790; font-size: 11px; }
+.check svg.ok { color: var(--g); } .check svg.bad { color: #ff6b6b; } .check svg.wait { color: #55606a; }
+.start { display: flex; align-items: center; justify-content: center; gap: var(--s2); min-height: 52px; border: 0; border-radius: var(--r-md); background: var(--g); color: #06281a; font-weight: 600; letter-spacing: 0.1em; width: 100%; }
+.start:disabled { background: #17382c; color: #4d7a66; cursor: not-allowed; }
+.rec-track { height: 6px; background: #1b2226; border-radius: 3px; overflow: hidden; } .rec-track i { display: block; height: 100%; background: var(--g); transition: width .1s linear; }
+.attempt .retake { background: none; border: 0; color: #9aa6a0; letter-spacing: 0.08em; font-size: 12px; }
+.attempt p { font-size: 12px; color: #7c8790; margin-top: 4px; }
+.ctx { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); font-size: 11px; } .ctx dt { color: #7c8790; letter-spacing: 0.06em; font-size: 10px; } .ctx dd { margin: 4px 0 0; font-weight: 500; }
+.cap-foot { text-align: center; font-size: 11px; color: #7c8790; display: flex; gap: 6px; justify-content: center; align-items: center; }
+.cap .why { font-size: 12px; color: #9aa6a0; text-align: center; }
+.ring { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5, 6, 7, 0.6); color: #fff; font-size: var(--t-13); text-align: center; gap: var(--s2); align-content: center; }
+.ring svg { transform: rotate(-90deg); }
+.cap .btn { background: #12171a; border-color: #2a343a; color: #e8eeea; }
+.rec-badge { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 11px; letter-spacing: .08em; padding: 3px 8px; border-radius: var(--r-pill); }
+.rec-badge i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d4f; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.start.stop { background: #e5484d; color: #fff; }
+.start.stop:disabled { background: #4a2326; color: #b98a8c; }
